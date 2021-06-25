@@ -1,0 +1,21 @@
+CREATE DATABASE employee_tracker_db;
+
+USE employee_tracker_db
+
+CREATE TABLE department;
+ID INT PRIMARY KEY,
+Department Name VARCHAR(30) NOT NULL,
+
+CREATE TABLE role;
+ID INT PRIMARY KEY,
+Title Name VARCHAR(30) NOT NULL,
+Salary DECIMAL NOT NULL,
+Department_id INT NOT NULL,
+
+CREATE TABLE employee;
+ID INT PRIMARY KEY,
+First Name VARCHAR(30) NOT NULL,
+Last Name VARCHAR(30) NOT NULL,
+Role_id INT NOT NULL,
+Manager_id INT NOT NULL,
+
