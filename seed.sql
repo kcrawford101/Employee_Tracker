@@ -4,29 +4,27 @@ CREATE DATABASE employee_tracker_db;
 USE employee_tracker_db;
 
 CREATE TABLE department (
-    ID INT NOT NULL AUTO_INCREMENT,
-    Name VARCHAR(30),
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(30)    
 );
 
 
 CREATE TABLE role (
-    ID INT NOT NULL AUTO_INCREMENT,
-    Title VARCHAR(30),
-    Salary DECIMAL,
-    Department_id INT,
-    FOREIGN KEY (department_id) REFERENCES department(id),
-    PRIMARY KEY (id)
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(30),
+    salary DECIMAL,
+    department_id INT,
+    FOREIGN KEY (department_id) REFERENCES department(id)
 );
 
 
 CREATE TABLE employee (
-    ID INT NOT NULL AUTO_INCREMENT,
-    First Name VARCHAR(30) NOT NULL,
-    Last Name VARCHAR(30) NOT NULL,
+    ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
     Role_id INT NOT NULL,
-    Manager_id INT NOT NULL,
-    FOREIGN KEY (Manager_id) REFERENCES employee(id),
-    PRIMARY KEY (id)
+    Manager_id INT,
+    FOREIGN KEY (Manager_id) REFERENCES employee(id)    
 );
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
@@ -42,8 +40,4 @@ INSERT INTO department (name)
 VALUES ("Marketing");
 
 INSERT INTO role (title, salary, department_id)
-VALUES ("Annually",75000, 1);
-
-
-
-
+VALUES ("Annually", 75000, 1);
