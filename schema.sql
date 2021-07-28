@@ -11,9 +11,9 @@ CREATE TABLE department (
 
 CREATE TABLE role (
     ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(30),
-    salary DECIMAL,
-    department_id INT,
+    title VARCHAR(30) NOT NULL,
+    salary DECIMAL(10,2) NOT NULL,
+    department_id INT NOT NULL,
     FOREIGN KEY (department_id) REFERENCES department(id)
 );
 
@@ -40,4 +40,4 @@ INSERT INTO department (name)
 VALUES ("Marketing");
 
 INSERT INTO role (title, salary, department_id)
-VALUES ("Annually", 75000, 1);
+VALUES ("Marketing Analyst", 75000, 1);
