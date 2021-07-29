@@ -1,7 +1,5 @@
-  
 const inquirer = require('inquirer');
 const mysql = require('mysql');
-const util=require('util')
 
 const connection = mysql.createConnection({
     host: 'localhost',    
@@ -11,10 +9,24 @@ const connection = mysql.createConnection({
     database: 'employee_tracker_db',
 });
 
+connection.connect((err) => {
+    if (err) throw err;
+    console.log(`
+    ███████╗███╗   ███╗██████╗ ██╗      ██████╗ ██╗   ██╗███████╗███████╗    ████████╗██████╗  █████╗  ██████╗██╗  ██╗███████╗██████╗ 
+    ██╔════╝████╗ ████║██╔══██╗██║     ██╔═══██╗╚██╗ ██╔╝██╔════╝██╔════╝    ╚══██╔══╝██╔══██╗██╔══██╗██╔════╝██║ ██╔╝██╔════╝██╔══██╗
+    █████╗  ██╔████╔██║██████╔╝██║     ██║   ██║ ╚████╔╝ █████╗  █████╗         ██║   ██████╔╝███████║██║     █████╔╝ █████╗  ██████╔╝
+    ██╔══╝  ██║╚██╔╝██║██╔═══╝ ██║     ██║   ██║  ╚██╔╝  ██╔══╝  ██╔══╝         ██║   ██╔══██╗██╔══██║██║     ██╔═██╗ ██╔══╝  ██╔══██╗
+    ███████╗██║ ╚═╝ ██║██║     ███████╗╚██████╔╝   ██║   ███████╗███████╗       ██║   ██║  ██║██║  ██║╚██████╗██║  ██╗███████╗██║  ██║
+    ╚══════╝╚═╝     ╚═╝╚═╝     ╚══════╝ ╚═════╝    ╚═╝   ╚══════╝╚══════╝       ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
+`);
+    console.log('Welcome to the Employee Tracker!');
+    firstQuestions();
+});
+
 const questions = [
     {
         type: 'list',
-        message: 'What would like to do?',
+        message: 'Employee Tracker Menu',
         name: 'initialq',
         choices: ['View all employees', 'View departments', 'View roles', 'Add a department','Add a role','Add an employee', 'Update employee role', 'Delete employee', 'Exit']
     }
@@ -88,12 +100,12 @@ const viewRoles = () => {
         if (err) throw err;
 
             console.table(res);
-            firstQuestion();
+            firstQuestions();
     });
     
 };
 
-function employeeQuestions(roles){
+function employeeQuestions(role){
 
     const empQue = [
         {
@@ -110,7 +122,7 @@ function employeeQuestions(roles){
             type: 'list',
             message: "What is the employee's role?",
             name: 'role',
-            choices: roles.map(role => ({name:role.title, value:role.id}))
+            choices: role.map(role => ({name:role.title, value:role.id}))
         }
         ]
         
@@ -130,8 +142,8 @@ function addEmManager (managers) {
 };
 
 const addEmployee = () => {
-    connection.query('SELECT * FROM employee_tracker_db.roles', (err,roles) => {
-        const empQue = employeeQuestions(roles)
+    connection.query('SELECT * FROM employee_tracker_db.role', (err,role) => {
+        const empQue = employeeQuestions(role)
             inquirer. prompt(empQue)
             .then((answers)=> {
                 let emQAnswers = answers
@@ -142,13 +154,13 @@ const addEmployee = () => {
                 {
                     first_name: emQAnswers.firstname,
                     last_name: emQAnswers.lastname,
-                    roles_id: emQAnswers.role,
+                    role_id: emQAnswers.role,
                     manager_id: answers.empManager
                 },
                 (err, res) => {
                     if (err) throw err;
                     console.log("Your employee has been added");
-                    firstQuestion()
+                    firstQuestions()
             })   
             })
         })
@@ -182,7 +194,7 @@ const addRole = () => {
         let roleDepartments = roleQuestions(departments)
         inquirer.prompt(roleDepartments)
         .then((answers)=>{
-            connection.query ('INSERT INTO roles SET ?', 
+            connection.query ('INSERT INTO role SET ?', 
         {
             title: answers.rolename,
             salary: answers.rolesalary,
@@ -226,7 +238,7 @@ const addDepartment = () => {
 });
 };
 
-function updateEmployee (employees) {
+function updateEmployeeQue (employees) {
     updateQ1 = [
         {
             type: 'list',
@@ -238,13 +250,13 @@ function updateEmployee (employees) {
     return updateQ1
 };
 
-function updateRole (roles) {
+function updateRoleQue (role) {
     updateQ2 = [
         {
             type: 'list',
             message: "What is the employee's new role?",
             name: 'newrole',
-            choices: roles.map(role => ({name:role.title, value:role.id}))
+            choices: role.map(role => ({name:role.title, value:role.id}))
         }
     ]
     return updateQ2
@@ -252,16 +264,16 @@ function updateRole (roles) {
 
 const updateEmployeeRole = () => {
     connection.query ('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {    
-        let updateQ1 = updateEQuestion1(employees)
+        let updateQ1 = updateEmployeeQue(employees)
         inquirer.prompt(updateQ1)
         .then((answers) => {
             let employeeAns = answers   
-            connection.query('SELECT * FROM employee_tracker_db.roles', (err,roles) => {
-            let updateQ2 = updateEQuestion2 (roles)
+            connection.query('SELECT * FROM employee_tracker_db.role', (err,role) => {
+            let updateQ2 = updateRoleQue(role)
             inquirer.prompt(updateQ2)
             .then((answers)=> {       
                 connection.query('UPDATE employee SET ? WHERE ?', [
-                    { roles_id: answers.newrole
+                    { role_id: answers.newrole
                 },{
                     id: employeeAns.employee} ],
 
@@ -278,8 +290,8 @@ const updateEmployeeRole = () => {
 });
 };
 
-function deleteEmQ(employees){
-    deleteQ = [
+function deleteEmp(employees){
+    deleteQueue = [
         {
             type: 'list',
             message: "Which employee would you like to delete?",
@@ -287,5 +299,30 @@ function deleteEmQ(employees){
             choices: employees.map(employee => ({name:employee.full_name, value:employee.id}))
         }
     ]
-    return deleteQ
-}
+    return deleteQueue
+};
+
+const deleteEmployee = () => {
+    connection.query('SELECT employee.id, concat(employee.first_name, " " ,  employee.last_name) AS full_name FROM employee', (err, employees) => {
+        
+        let deleteQue = deleteEmp(employees)
+
+        inquirer.prompt(deleteQue)
+
+        .then((answers)=>{
+
+            connection.query('DELETE FROM employee WHERE ? ', 
+            {id:answers.deleteemp
+            },
+            (err,res) => {
+                if (err) throw err;
+
+                console.log('Employee deleted!')
+
+                firstQuestions()
+            }
+            );
+        });
+    });
+};
+
